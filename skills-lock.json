@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "commandkit": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit/SKILL.md",
+      "computedHash": "73b248f7ca22397de0a1cc469c3c8286a60121ca412e9a0cf2bfad6c2cb809f3"
+    },
+    "commandkit-devtools": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit-devtools/SKILL.md",
+      "computedHash": "0c130668351a4e9b0e1753bd6ddb2e71455cbbad8d5569803dc04d17520812df"
+    },
+    "commandkit-plugin-development": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit-plugin-development/SKILL.md",
+      "computedHash": "9c12d63b59430d9fa4e5753bb3730b69faad2f062ce5be2242a6276ca0969681"
+    },
+    "commandkit-queue": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit-queue/SKILL.md",
+      "computedHash": "1070533eabd087e829d36ebe97e8fa0c5ee7a61699be88c16f2f5b6c2f4ce941"
+    },
+    "commandkit-redis": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit-redis/SKILL.md",
+      "computedHash": "0131b9db3e55fc3f86b90c77831287bb1df1fcd5974db1f25a7ea7d12d1d6eb3"
+    },
+    "commandkit-tasks": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/commandkit-tasks/SKILL.md",
+      "computedHash": "49b8790e85e40d24f516a9f5f236ee71b7a55e978cc4f3b2e6e17f7a458abc40"
+    },
+    "create-commandkit": {
+      "source": "neplextech/commandkit",
+      "sourceType": "github",
+      "skillPath": "skills/create-commandkit/SKILL.md",
+      "computedHash": "31c1f5093e05dea1e9da448e731c561fe9e91b95c6f3f406a1ed3545a18464f0"
+    }
+  }
+}

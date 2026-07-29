@@ -8,7 +8,7 @@ export function softErrorHandling<T extends AsyncFn>(scope: string, handler: T):
       return await handler(...args);
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      Logger.error(`[soft-error:${scope}] ${err.stack ?? err.message}`);
+      Logger.error(`[error-handler:${scope}] ${err.stack ?? err.message}`);
       return;
     }
   }) as T;

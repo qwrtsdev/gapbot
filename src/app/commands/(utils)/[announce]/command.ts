@@ -8,9 +8,6 @@ export const command: CommandData = {
   description: 'ประกาศข้อความสู่ช่องที่กำหนด',
 };
 
-export const metadata: CommandMetadata = {
-  userPermissions: 'Administrator',
-};
 
 // Temporary test handler to verify the command is discovered by CommandKit.
 export const chatInput: ChatInputCommand = softErrorHandling('command:announce/chatInput', async (ctx) => {

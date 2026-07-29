@@ -8,9 +8,9 @@ const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageC
 
   message.deletable && await message.delete();
 
-  if (message.member?.permissions.has('Administrator')) return;
-  const target = message.member;
+  if (config.settings.admin_ban_honeypot === false) { if (message.member?.permissions.has('Administrator')) return; }
 
+  const target = message.member;
   await target?.ban({ reason: 'honeypot' });
 });
 

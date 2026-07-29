@@ -8,8 +8,8 @@ import {
   Container,
   TextDisplay,
 } from 'commandkit';
-import { MessageFlags, MessagePayload } from 'discord.js';
-import { softErrorHandling } from '@/utils/softError';
+import { MessageFlags } from 'discord.js';
+import { softErrorHandling } from '@/utils/errorHandler';
 
 const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;

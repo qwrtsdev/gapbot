@@ -2,6 +2,7 @@
 
 echo ":::::::::::::::: Gapbot — Resetting Guild Commands ::::::::::::::::"
 
+
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,7 +19,7 @@ if [[ -z "$TOKEN" && -f ".env" ]]; then
 fi
 
 if [[ -z "$TOKEN" ]]; then
-  echo ":::::::::::::::: Missing bot token. Set DISCORD_TOKEN in .env file. ::::::::::::::::"
+  echo "❌ Missing bot token. Set DISCORD_TOKEN in .env file."
   exit 1
 fi
 
@@ -28,11 +29,11 @@ if [[ -z "$GUILD_ID" ]]; then
 fi
 
 if [[ -z "$GUILD_ID" ]]; then
-  echo ":::::::::::::::: Missing guild id. Pass it as: ./reset-commands.sh <guild_id> ::::::::::::::::"
+  echo "❌ Missing guild id. Pass it as: ./reset-commands.sh <guild_id>"
   exit 1
 fi
 
-echo "Resetting guild commands for guild: $GUILD_ID"
+echo ">> Resetting guild commands for guild: $GUILD_ID"
 DISCORD_TOKEN="$TOKEN" GUILD_ID="$GUILD_ID" node <<'NODE'
 const { Client } = require('discord.js');
 
@@ -48,7 +49,7 @@ const guildId = process.env.GUILD_ID;
   }
 
   await client.application.commands.set([], guildId);
-  console.log(`Cleared all guild commands for ${guildId}.`);
+  console.log(`>> Cleared all guild commands for ${guildId}.`);
   await client.destroy();
 })().catch((err) => {
   console.error(err?.message ?? String(err));
@@ -56,4 +57,4 @@ const guildId = process.env.GUILD_ID;
 });
 NODE
 
-echo ":::::::::::::::: Resetting Complete ::::::::::::::::"
+echo "::::::::::::::::::: Gapbot — Resetting Complete :::::::::::::::::::"

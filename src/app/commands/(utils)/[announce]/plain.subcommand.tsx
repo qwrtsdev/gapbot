@@ -7,7 +7,7 @@ import {
   Label,
 } from 'commandkit';
 import { MessageFlags } from 'discord.js';
-import { softErrorHandling } from '@/utils/softError';
+import { softErrorHandling } from '@/utils/errorHandler';
 
 const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;

@@ -1,7 +1,7 @@
 import type { EventHandler } from 'commandkit';
 import { ChannelType } from 'discord.js';
 import config from '@/config';
-import { softErrorHandling } from '@/utils/softError';
+import { softErrorHandling } from '@/utils/errorHandler';
 
 const handler: EventHandler<'voiceStateUpdate'> = softErrorHandling('event:VoiceStateUpdate/auto-vc', async (oldState, newState) => {
   // const member = newState.member ?? oldState.member;

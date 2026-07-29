@@ -1,6 +1,6 @@
 import type { EventHandler } from 'commandkit';
 import config from '@/config';
-import { softErrorHandling } from '@/utils/softError';
+import { softErrorHandling } from '@/utils/errorHandler';
 
 const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageCreate/honeypot', async (message) => {
   if (message.author.bot) return;

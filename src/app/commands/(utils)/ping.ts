@@ -1,5 +1,5 @@
 import type { ChatInputCommand, CommandData } from 'commandkit';
-import { softErrorHandling } from '@/utils/softError';
+import { softErrorHandling } from '@/utils/errorHandler';
 
 export const command: CommandData = {
   name: 'ping',

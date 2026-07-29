@@ -1,6 +1,9 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const config = {
-  guild_id: '1459282920538771518',
-  honeypot_channel: '1529376207311863898'
+  guild_id: process.env.GUILD_ID || null,
+  honeypot_channel: process.env.HONNEYPOT_CHANNEL_ID || null
 }
 
 export default config;

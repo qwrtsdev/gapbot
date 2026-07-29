@@ -1,8 +1,6 @@
 import {
   type ChatInputCommand,
   type OnModalKitSubmit,
-  type CommandData,
-  type CommandMetadata,
   Modal,
   ShortInput,
   ParagraphInput,
@@ -10,54 +8,48 @@ import {
   Container,
   TextDisplay,
 } from 'commandkit';
-import { MessageFlags } from 'discord.js';
+import { MessageFlags, MessagePayload } from 'discord.js';
 import { softErrorHandling } from '@/utils/softError';
 
-export const command: CommandData = {
-  name: 'announce',
-  description: 'ประกาศข้อความสู่ช่องที่กำหนด',
-};
-
-export const metadata: CommandMetadata = {
-  userPermissions: 'Administrator',
-};
-
 const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
-  const channelId = interaction.fields.getTextInputValue('channelId').trim();
-  const replyId = interaction.fields.getTextInputValue('replyId');
-  const message = interaction.fields.getTextInputValue('message');
-  const channel = channelId ? await interaction.client.channels.fetch(channelId).catch(() => null) : null;
+  const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
+  const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
+  const input_message: string = interaction.fields.getTextInputValue('message');
 
-  const container = (
-    <Container>
-      <TextDisplay content={message} />
-    </Container>
-  );
+  const channel = input_channel_id
+    ? await interaction.client.channels.fetch(input_channel_id).catch(() => null)
+    : interaction.channel;
 
-  const payload = {
-    components: [container],
-    flags: MessageFlags.IsComponentsV2,
-    reply: replyId ? { messageReference: replyId } : undefined,
-  };
-
-  if (channelId && !channel) {
+  if (!channel?.isTextBased() || !('send' in channel)) {
     await interaction.reply({
-      content: '❌ ไม่พบห้องจากไอดีที่ระบุ',
+      content: '❌ ห้องที่ระบุไม่ใช่ห้องข้อความ',
       flags: MessageFlags.Ephemeral,
     });
+
     ctx.dispose();
     return;
   }
 
-  if (channel && channel.isTextBased() && 'send' in channel) {
-    await channel.send(payload);
-  } else if (interaction.channel && 'send' in interaction.channel && interaction.channel.isTextBased()) {
-    await interaction.channel.send(payload);
-  } else {
+  const container = (
+    <Container>
+      <TextDisplay content={input_message} />
+    </Container>
+  )
+
+  const message_payload: any = {
+    components: [container],
+    reply: input_reply_id ? { messageReference: input_reply_id } : undefined,
+    flags: MessageFlags.IsComponentsV2,
+  };
+
+  try {
+    await channel.send(message_payload);
+  } catch (err) {
     await interaction.reply({
-      content: '❌ ไม่สามารถส่งข้อความไปยังห้องนี้ได้',
+      content: '❌ ส่งข้อความไม่สำเร็จ',
       flags: MessageFlags.Ephemeral,
     });
+
     ctx.dispose();
     return;
   }

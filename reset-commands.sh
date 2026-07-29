@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "=========== Resetting Guild Commands ==========="
+echo ":::::::::::::::: Gapbot — Resetting Guild Commands ::::::::::::::::"
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ if [[ -z "$TOKEN" && -f ".env" ]]; then
 fi
 
 if [[ -z "$TOKEN" ]]; then
-  echo "Missing bot token. Set DISCORD_TOKEN (or BOT_TOKEN/TOKEN) or add DISCORD_TOKEN in .env."
+  echo ":::::::::::::::: Missing bot token. Set DISCORD_TOKEN in .env file. ::::::::::::::::"
   exit 1
 fi
 
@@ -28,7 +28,7 @@ if [[ -z "$GUILD_ID" ]]; then
 fi
 
 if [[ -z "$GUILD_ID" ]]; then
-  echo "Missing guild id. Pass it as: ./reset-commands.sh <guild_id>"
+  echo ":::::::::::::::: Missing guild id. Pass it as: ./reset-commands.sh <guild_id> ::::::::::::::::"
   exit 1
 fi
 
@@ -56,4 +56,4 @@ const guildId = process.env.GUILD_ID;
 });
 NODE
 
-echo "=========== Resetting Complete ==========="
+echo ":::::::::::::::: Resetting Complete ::::::::::::::::"

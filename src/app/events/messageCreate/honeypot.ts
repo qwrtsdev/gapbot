@@ -4,7 +4,7 @@ import { softErrorHandling } from '@/utils/errorHandler';
 
 const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageCreate/honeypot', async (message) => {
   if (message.author.bot) return;
-  if (message.channelId !== config.honeypot_channel) return;
+  if (message.channelId !== config.channels.honeypot_channel) return;
 
   message.deletable && await message.delete();
 

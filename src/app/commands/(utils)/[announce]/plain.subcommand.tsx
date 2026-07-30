@@ -1,4 +1,5 @@
 import {
+  CommandData,
   type ChatInputCommand,
   type OnModalKitSubmit,
   Modal,
@@ -8,6 +9,11 @@ import {
 } from 'commandkit';
 import { MessageFlags } from 'discord.js';
 import { softErrorHandling } from '@/utils/errorHandler';
+
+export const command: CommandData = {
+  name: 'announce',
+  description: 'ประกาศข้อความสู่ช่อง (ธรรมดา)',
+};
 
 const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
@@ -71,7 +77,7 @@ export const chatInput: ChatInputCommand = softErrorHandling('command:announce/c
       <Label label="ข้อความ">
         <ParagraphInput
           customId="message"
-          placeholder="กรอกข้อความที่ต้องการส่ง"
+          placeholder="กรอกข้อความที่ต้องการส่ง (สามารถใช้ Markdown ได้)"
           required
         />
       </Label>

@@ -11,8 +11,8 @@ import { MessageFlags } from 'discord.js';
 import { softErrorHandling } from '@/utils/errorHandler';
 
 export const command: CommandData = {
-  name: 'announce',
-  description: 'ประกาศข้อความสู่ช่อง (ธรรมดา)',
+  name: 'plain',
+  description: 'แบบข้อความธรรมดา',
 };
 
 const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {

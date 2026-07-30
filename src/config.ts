@@ -4,6 +4,10 @@ dotenv.config();
 interface Config {
   guild_id: string;
 
+  categories: {
+    ticket_category: string;
+  };
+
   channels: {
     log_channel: string;
     honeypot_channel: string;
@@ -23,6 +27,10 @@ interface Config {
 const config: Config = {
   guild_id: '1459282920538771518',
 
+  categories: {
+    ticket_category: '',
+  },
+
   channels: {
     log_channel: '1532079508986003486',
     honeypot_channel: '1529376207311863898',
@@ -30,7 +38,7 @@ const config: Config = {
   },
 
   settings: {
-    admin_ban_honeypot: false,
+    admin_ban_honeypot: true,
   },
 
   maintenance_mode: {

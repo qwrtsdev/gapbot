@@ -1,7 +1,26 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const config = {
+interface Config {
+  guild_id: string;
+
+  channels: {
+    log_channel: string;
+    honeypot_channel: string;
+    auto_voice_channel: string[];
+  };
+
+  settings: {
+    admin_ban_honeypot: boolean;
+  };
+
+  maintenance_mode: {
+    is_enabled: boolean;
+    developer_id: string[];
+  };
+}
+
+const config: Config = {
   guild_id: '1459282920538771518',
 
   channels: {
@@ -14,9 +33,9 @@ const config = {
     admin_ban_honeypot: false,
   },
 
-  developer: {
-    is_enabled: true,
-    dev_id: ['123'],
+  maintenance_mode: {
+    is_enabled: false,
+    developer_id: ['824442267318222879'],
   }
 }
 

@@ -63,7 +63,7 @@ if (!config.external.gemini_api_key) {
 
       if (!result.text) return;
 
-      const content = result.text.slice(0, 1500);
+      const content = result.text.slice(0, 2000);
 
       if (thinkingMsg) {
         await thinkingMsg.edit({ content, allowedMentions: { parse: [] } }).catch(() => null);

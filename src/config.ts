@@ -21,11 +21,11 @@ interface Config {
 
   maintenance_mode: {
     is_enabled: boolean;
-    developer_id: string[];
+    developer_id?: string[];
   };
 
   external: {
-    gemini_api_key: string | undefined;
+    gemini_api_key?: string | undefined;
     ai_allowed_roles?: string[];
   };
 }
@@ -55,7 +55,7 @@ const config: Config = {
 
   external : {
     gemini_api_key: process.env.GEMINI_API_KEY ?? undefined,
-    // ai_allowed_roles: ['1473011299091746877', '1492919958840279082', '1492919958840279083', '1492919958840279084']
+    ai_allowed_roles: ['1492863029317210283', '1473011299091746877', '1492919958840279082', '1492919958840279083', '1492919958840279084']
   }
 }
 

@@ -1,8 +1,8 @@
 import { Logger } from 'commandkit';
 import { configureAI } from '@commandkit/ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import config from '@/config';
 import type { Message } from 'discord.js';
+import config from '@/config';
 
 const ai_waiting_message = [
   '🧠 กูว่าแล้วมึงต้องอ่าน..',
@@ -39,13 +39,16 @@ if (!config.external.gemini_api_key) {
 
       if (!is_valid) return false;
 
-      const has_allowed_role = message.member?.roles.cache.some((role) => config.external.ai_allowed_roles.includes(role.id), );
-
-      if (!has_allowed_role) {
-        await message
-          .reply({ content: '🔐 ขออภัย ฟีเจอร์นี้ใช้ได้เฉพาะ **ชาวหู (เมมเบอร์ชิพ)** และ **Server Booster** เท่านั้น', allowedMentions: { parse: [] } })
-          .catch(() => null);
-        return false;
+      if (config.external.ai_allowed_roles) {
+        if (!message.member?.roles.cache.some((role) => config.external.ai_allowed_roles?.includes(role.id))) {
+          await message
+            .reply({
+              content: '🔐 ขออภัย ฟีเจอร์นี้ใช้ได้เฉพาะ **ชาวหู (เมมเบอร์ชิพ)** และ **Server Booster** เท่านั้น',
+              allowedMentions: { parse: [] }
+            })
+            .catch(() => null);
+          return false;
+        }
       }
 
       return true;

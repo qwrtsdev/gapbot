@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 interface Config {
+  discord_token: string | null;
   guild_id: string;
 
   categories: {
@@ -22,9 +23,14 @@ interface Config {
     is_enabled: boolean;
     developer_id: string[];
   };
+
+  external: {
+    gemini_api_key: string | undefined;
+  };
 }
 
 const config: Config = {
+  discord_token: process.env.DISCORD_TOKEN || null,
   guild_id: '1459282920538771518',
 
   categories: {
@@ -38,12 +44,16 @@ const config: Config = {
   },
 
   settings: {
-    admin_ban_honeypot: true,
+    admin_ban_honeypot: false,
   },
 
   maintenance_mode: {
-    is_enabled: false,
+    is_enabled: true,
     developer_id: ['824442267318222879'],
+  },
+
+  external : {
+    gemini_api_key: process.env.GEMINI_API_KEY ?? undefined,
   }
 }
 

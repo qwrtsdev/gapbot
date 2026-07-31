@@ -24,7 +24,7 @@ if (!config.external.gemini_api_key) {
 } else {
   const google = createGoogleGenerativeAI({ apiKey: config.external.gemini_api_key });
 
-  const placeholder_messages = new Map<string, Message>();
+  const placeholder_messages_state = new Map<string, Message>();
 
   configureAI({
     selectAiModel: async () => ({
@@ -34,39 +34,46 @@ if (!config.external.gemini_api_key) {
     }),
 
     messageFilter: async (commandkit, message) => {
-      return (
-        message.mentions.users.has(message.client.user!.id) &&
-        message.inGuild() &&
-        // message.member?.permissions.has('Administrator') &&
-        !message.author.bot
-      );
+      const is_mentioned = message.mentions.users.has(message.client.user!.id);
+      const is_valid = is_mentioned && message.inGuild() && !message.author.bot;
+
+      if (!is_valid) return false;
+
+      const has_allowed_role = message.member?.roles.cache.some((role) => config.external.ai_allowed_roles.includes(role.id), );
+
+      if (!has_allowed_role) {
+        await message
+          .reply({ content: '🔐 ขออภัย ฟีเจอร์นี้ใช้ได้เฉพาะ **ชาวหู (เมมเบอร์ชิพ)** และ **Server Booster** เท่านั้น', allowedMentions: { parse: [] } })
+          .catch(() => null);
+        return false;
+      }
+
+      return true;
     },
 
     onProcessingStart: async (ctx, message) => {
       if (!message.channel.isTextBased()) return;
 
-      const thinkingMsg = await message
+      const thinking_msg = await message
         .reply({
           content: ai_waiting_message[Math.floor(Math.random() * ai_waiting_message.length)],
           allowedMentions: { parse: [] },
         })
         .catch(() => null);
 
-      if (thinkingMsg) {
-        placeholder_messages.set(message.id, thinkingMsg);
-      }
+      if (thinking_msg) { placeholder_messages_state.set(message.id, thinking_msg); }
     },
 
     onResult: async (ctx, message, result) => {
-      const thinkingMsg = placeholder_messages.get(message.id);
-      placeholder_messages.delete(message.id);
+      const thinking_msg = placeholder_messages_state.get(message.id);
+      placeholder_messages_state.delete(message.id);
 
       if (!result.text) return;
 
       const content = result.text.slice(0, 2000);
 
-      if (thinkingMsg) {
-        await thinkingMsg.edit({ content, allowedMentions: { parse: [] } }).catch(() => null);
+      if (thinking_msg) {
+        await thinking_msg.edit({ content, allowedMentions: { parse: [] } }).catch(() => null);
       } else {
         await message
           .reply({ content, allowedMentions: { parse: [] } })
@@ -77,8 +84,8 @@ if (!config.external.gemini_api_key) {
     onError: async (ctx, message, error) => {
       Logger.error(error);
 
-      const thinking_placeholder = placeholder_messages.get(message.id);
-      placeholder_messages.delete(message.id);
+      const thinking_placeholder = placeholder_messages_state.get(message.id);
+      placeholder_messages_state.delete(message.id);
       if (thinking_placeholder) { await thinking_placeholder.delete().catch(() => null); }
 
       await message

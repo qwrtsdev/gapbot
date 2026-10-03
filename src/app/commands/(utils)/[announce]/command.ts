@@ -3,10 +3,10 @@
 import type { CommandData, CommandMetadata } from 'commandkit';
 
 export const command: CommandData = {
-  name: 'announce',
-  description: 'ประกาศข้อความสู่ช่องที่กำหนด',
+    name: 'announce',
+    description: 'ประกาศข้อความสู่ช่องที่กำหนด',
 };
 
 export const metadata: CommandMetadata = {
-  userPermissions: 'Administrator',
+    userPermissions: 'Administrator',
 }

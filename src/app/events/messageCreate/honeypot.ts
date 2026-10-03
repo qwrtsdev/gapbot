@@ -1,8 +1,7 @@
 import { Collection, type EventHandler } from 'commandkit';
 import config from '@/config';
-import { softErrorHandling } from '@/utils/errorHandler';
 
-const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageCreate/honeypot', async (message) => {
+const handler: EventHandler<'messageCreate'> = async (message) => {
   if (message.channelId !== config.channels.honeypot_channel) return;
   if (message.author.bot) return;
 
@@ -19,7 +18,7 @@ const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageC
     ? await honeypot_channel.send({ content: `🍯 **${target?.user.tag}** สแปมเยอะเกิน ถูกแบนเลยง่ะ` })
     : null;
 
-  setInterval(() => { log_message?.delete().catch(() => null); }, 1000 * 60 * 3);
+  setTimeout(() => { log_message?.delete().catch(() => null); }, 1000 * 60 * 3);
 
   const other_channels = message.guild?.channels.cache.filter((c) =>
     c.isTextBased() && c.id !== message.channelId && c.permissionsFor(message.guild!.members.me!)?.has(['ViewChannel', 'ReadMessageHistory', 'ManageMessages']),
@@ -33,6 +32,6 @@ const handler: EventHandler<'messageCreate'> = softErrorHandling('event:messageC
       latest?.deletable && await latest.delete().catch(() => null);
     }),
   );
-});
+};
 
 export default handler;

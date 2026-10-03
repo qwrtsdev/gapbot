@@ -7,9 +7,8 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import config from '@/config';
-import { softErrorHandling } from '@/utils/errorHandler';
 
-const handler: EventHandler<'voiceStateUpdate'> = softErrorHandling('event:VoiceStateUpdate/auto-vc', async (oldState, newState) => {
+const handler: EventHandler<'voiceStateUpdate'> = async (oldState, newState) => {
   const member = newState.member ?? oldState.member;
   if (!member || member.user.bot) return;
 
@@ -99,7 +98,6 @@ const handler: EventHandler<'voiceStateUpdate'> = softErrorHandling('event:Voice
     await lockMessage.delete().catch(() => null);
     collector.stop();
   });
-},
-);
+};
 
 export default handler;

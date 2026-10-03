@@ -8,14 +8,13 @@ import {
   Label,
 } from 'commandkit';
 import { MessageFlags } from 'discord.js';
-import { softErrorHandling } from '@/utils/errorHandler';
 
 export const command: CommandData = {
   name: 'plain',
   description: 'แบบข้อความธรรมดา',
 };
 
-const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
+const handleSubmit: OnModalKitSubmit = async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
   const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
   const input_message: string = interaction.fields.getTextInputValue('message');
@@ -57,9 +56,9 @@ const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modal
   });
 
   ctx.dispose();
-});
+};
 
-export const chatInput: ChatInputCommand = softErrorHandling('command:announce/chatInput', async ({ interaction }) => {
+export const chatInput: ChatInputCommand = async ({ interaction }) => {
   const modal = (
     <Modal title="ประกาศข้อความ" onSubmit={handleSubmit}>
       <Label label="ไอดีห้อง (ถ้ามี)">
@@ -85,4 +84,4 @@ export const chatInput: ChatInputCommand = softErrorHandling('command:announce/c
   );
 
   await interaction.showModal(modal);
-});
+};

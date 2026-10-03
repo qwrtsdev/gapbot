@@ -1,8 +1,7 @@
 import { ActivityType } from 'discord.js';
 import type { EventHandler } from 'commandkit';
-import { softErrorHandling } from '@/utils/errorHandler';
 
-const handler: EventHandler<'clientReady'> = softErrorHandling('event:clientReady/presence', async (client) => {
+const handler: EventHandler<'clientReady'> = async (client) => {
   client.user?.setPresence({
     status: 'idle',
     activities: [{
@@ -11,6 +10,6 @@ const handler: EventHandler<'clientReady'> = softErrorHandling('event:clientRead
       state: 'tip.gap.bo',
     }],
   });
-});
+};
 
 export default handler;

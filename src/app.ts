@@ -11,17 +11,13 @@ const client = new Client({
   ],
 });
 
-if (process.listenerCount('unhandledRejection') === 0) {
-  process.on('unhandledRejection', (reason) => {
-    const err = reason instanceof Error ? reason : new Error(String(reason));
-    Logger.error(`[⚠️ ErrorHandler: unhandledRejection] ${err.stack ?? err.message}`);
-  });
-}
+// discord.js emits these instead of throwing; an 'error' with no listener would be rethrown by Node
+client.on('error', (error) => {
+  Logger.error(`[⚠️ ErrorHandler: client] ${error.stack ?? error.message}`);
+});
 
-if (process.listenerCount('uncaughtException') === 0) {
-  process.on('uncaughtException', (error) => {
-    Logger.error(`[⚠️ ErrorHandler: uncaughtException] ${error.stack ?? error.message}`);
-  });
-}
+client.on('shardError', (error, shardId) => {
+  Logger.error(`[⚠️ ErrorHandler: shard #${shardId}] ${error.stack ?? error.message}`);
+});
 
 export default client;

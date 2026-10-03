@@ -2,7 +2,13 @@ import { Client } from 'discord.js';
 import { Logger } from 'commandkit/logger';
 
 const client = new Client({
-  intents: ['Guilds', 'GuildMembers', 'GuildMessages', 'MessageContent'],
+  intents: [
+    'Guilds',
+    'GuildMembers',
+    'GuildMessages',
+    'MessageContent',
+    'GuildVoiceStates'
+  ],
 });
 
 if (process.listenerCount('unhandledRejection') === 0) {

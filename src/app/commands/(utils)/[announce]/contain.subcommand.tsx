@@ -1,4 +1,5 @@
 import {
+  CommandData,
   type ChatInputCommand,
   type OnModalKitSubmit,
   Modal,
@@ -9,9 +10,13 @@ import {
   TextDisplay,
 } from 'commandkit';
 import { MessageFlags } from 'discord.js';
-import { softErrorHandling } from '@/utils/errorHandler';
 
-const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modalSubmit', async (interaction, ctx) => {
+export const command: CommandData = {
+  name: 'contain',
+  description: 'แบบกล่องข้อความ',
+};
+
+const handleSubmit: OnModalKitSubmit = async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
   const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
   const input_message: string = interaction.fields.getTextInputValue('message');
@@ -60,9 +65,9 @@ const handleSubmit: OnModalKitSubmit = softErrorHandling('command:announce/modal
   });
 
   ctx.dispose();
-});
+};
 
-export const chatInput: ChatInputCommand = softErrorHandling('command:announce/chatInput', async ({ interaction }) => {
+export const chatInput: ChatInputCommand = async ({ interaction }) => {
   const modal = (
     <Modal title="ประกาศข้อความ" onSubmit={handleSubmit}>
       <Label label="ไอดีห้อง (ถ้ามี)">
@@ -80,7 +85,7 @@ export const chatInput: ChatInputCommand = softErrorHandling('command:announce/c
       <Label label="ข้อความ">
         <ParagraphInput
           customId="message"
-          placeholder="กรอกข้อความที่ต้องการส่ง"
+          placeholder="กรอกข้อความที่ต้องการส่ง (สามารถใช้ Markdown ได้)"
           required
         />
       </Label>
@@ -88,4 +93,4 @@ export const chatInput: ChatInputCommand = softErrorHandling('command:announce/c
   );
 
   await interaction.showModal(modal);
-});
+};

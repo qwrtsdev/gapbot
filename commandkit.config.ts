@@ -3,6 +3,6 @@ import { ai } from '@commandkit/ai';
 
 export default defineConfig({
   showUnknownPrefixCommandsWarning: false,
-  antiCrashScript: { development: true, production: true },
+  antiCrashScript: { development: false, production: false },
   plugins: [ai()],
 });

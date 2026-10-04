@@ -7,7 +7,7 @@ const handler: EventHandler<'clientReady'> = async (client) => {
     activities: [{
       name: 'custom',
       type: ActivityType.Custom,
-      state: 'tip.gap.bo',
+      state: 'https://tip.gap.bo',
     }],
   });
 };

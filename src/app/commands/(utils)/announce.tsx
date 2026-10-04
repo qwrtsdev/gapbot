@@ -1,20 +1,39 @@
 import {
-  CommandData,
   type ChatInputCommand,
+  type CommandData,
+  type CommandMetadata,
   type OnModalKitSubmit,
   Modal,
   ShortInput,
   ParagraphInput,
   Label,
+  Container,
+  TextDisplay,
 } from 'commandkit';
-import { MessageFlags } from 'discord.js';
+import { ApplicationCommandOptionType, MessageFlags } from 'discord.js';
 
 export const command: CommandData = {
-  name: 'plain',
-  description: 'แบบข้อความธรรมดา',
+  name: 'announce',
+  description: 'ประกาศข้อความสู่ช่องที่กำหนด',
+  options: [
+    {
+      name: 'style',
+      description: 'รูปแบบข้อความ',
+      type: ApplicationCommandOptionType.String,
+      required: true,
+      choices: [
+        { name: 'แบบข้อความธรรมดา', value: 'plain' },
+        { name: 'แบบกล่องข้อความ', value: 'contain' },
+      ],
+    },
+  ],
 };
 
-const handleSubmit: OnModalKitSubmit = async (interaction, ctx) => {
+export const metadata: CommandMetadata = {
+  userPermissions: 'Administrator',
+};
+
+const makeSubmit = (style: string): OnModalKitSubmit => async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
   const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
   const input_message: string = interaction.fields.getTextInputValue('message');
@@ -33,10 +52,19 @@ const handleSubmit: OnModalKitSubmit = async (interaction, ctx) => {
     return;
   }
 
-  const message_payload: any = {
-    content: input_message,
-    reply: input_reply_id ? { messageReference: input_reply_id } : undefined,
-  };
+  const reply = input_reply_id ? { messageReference: input_reply_id } : undefined;
+
+  const message_payload: any = style === 'contain'
+    ? {
+        components: [
+          <Container>
+            <TextDisplay content={input_message} />
+          </Container>,
+        ],
+        reply,
+        flags: MessageFlags.IsComponentsV2,
+      }
+    : { content: input_message, reply };
 
   try {
     await channel.send(message_payload);
@@ -59,8 +87,10 @@ const handleSubmit: OnModalKitSubmit = async (interaction, ctx) => {
 };
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
+  const style = interaction.options.getString('style', true);
+
   const modal = (
-    <Modal title="ประกาศข้อความ" onSubmit={handleSubmit}>
+    <Modal title="ประกาศข้อความ" onSubmit={makeSubmit(style)}>
       <Label label="ไอดีห้อง (ถ้ามี)">
         <ShortInput
           customId="channelId"

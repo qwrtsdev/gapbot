@@ -1,14 +1,18 @@
 import type { EventHandler } from 'commandkit';
-import optionOne from '@/app/interactions/option_one';
-import optionTwo from '@/app/interactions/option_two';
+import auto_vc from '@/app/interactions/auto-vc-settings';
+import honeypot from '@/app/interactions/honeypot-settings';
+import routine_message from '@/app/interactions/routine-settings';
+import ticket from '@/app/interactions/ticket-settings';
 
 const options = {
-  '1': optionOne,
-  '2': optionTwo,
+  'auto-vc-settings': auto_vc,
+  'honey-pot-settings': honeypot,
+  'routine-message-settings': routine_message,
+  'ticket-settings': ticket,
 };
 
 const handler: EventHandler<'interactionCreate'> = async (interaction) => {
-  if (!interaction.isStringSelectMenu() || interaction.customId !== 'mod-menu') return;
+  if (!interaction.isStringSelectMenu() || interaction.customId !== 'mod-menu-options') return;
 
   const value = interaction.values[0] as keyof typeof options;
   await options[value]?.(interaction);

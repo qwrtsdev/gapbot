@@ -33,7 +33,7 @@ export const metadata: CommandMetadata = {
   userPermissions: 'Administrator',
 };
 
-const makeSubmit = (style: string): OnModalKitSubmit => async (interaction, ctx) => {
+const handleSubmit = (style: string): OnModalKitSubmit => async (interaction, ctx) => {
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
   const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
   const input_message: string = interaction.fields.getTextInputValue('message');
@@ -56,14 +56,14 @@ const makeSubmit = (style: string): OnModalKitSubmit => async (interaction, ctx)
 
   const message_payload: any = style === 'contain'
     ? {
-        components: [
-          <Container>
-            <TextDisplay content={input_message} />
-          </Container>,
-        ],
-        reply,
-        flags: MessageFlags.IsComponentsV2,
-      }
+      components: [
+        <Container>
+          <TextDisplay content={input_message} />
+        </Container>,
+      ],
+      reply,
+      flags: MessageFlags.IsComponentsV2,
+    }
     : { content: input_message, reply };
 
   try {
@@ -90,7 +90,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
   const style = interaction.options.getString('style', true);
 
   const modal = (
-    <Modal title="ประกาศข้อความ" onSubmit={makeSubmit(style)}>
+    <Modal title="ประกาศข้อความ" onSubmit={handleSubmit(style)}>
       <Label label="ไอดีห้อง (ถ้ามี)">
         <ShortInput
           customId="channelId"

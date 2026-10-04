@@ -32,19 +32,31 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       <ActionRow>
         <StringSelectMenu
           placeholder="เลือกตัวเลือกที่ต้องการ"
-          customId="mod-menu"
+          customId="mod-menu-options"
         >
           <StringSelectMenuOption
-            label="Option 1"
-            value="1"
-            description="First option"
-            emoji="1️⃣"
+            label="ตั้งค่าห้องเสียงอัติโนมัติ"
+            value="auto-vc-settings"
+            description="เปิด/ปิด หรือตั้งค่าเพิ่มเติม"
+            emoji="🎙️"
           />
           <StringSelectMenuOption
-            label="Option 2"
-            value="2"
-            description="Second option"
-            emoji="2️⃣"
+            label="ตั้งค่าห้องดักบอท"
+            value="honey-pot-settings"
+            description="เปิด/ปิด หรือตั้งค่าเพิ่มเติม"
+            emoji="🍯"
+          />
+          <StringSelectMenuOption
+            label="ตั้งค่าข้อความประจำเวลา"
+            value="routine-message-settings"
+            description="เปิด/ปิด หรือตั้งค่าเพิ่มเติม"
+            emoji="📆"
+          />
+          <StringSelectMenuOption
+            label="ตั้งค่าระบบทิคเก็ต"
+            value="ticket-settings"
+            description="เปิด/ปิด หรือตั้งค่าเพิ่มเติม"
+            emoji="🎟️"
           />
         </StringSelectMenu>
       </ActionRow>

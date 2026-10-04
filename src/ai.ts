@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { Logger } from 'commandkit';
-import { configureAI } from '@commandkit/ai';
+import { configureAI, createSystemPrompt } from '@commandkit/ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import type { Message } from 'discord.js';
 import config from '@/config';
@@ -12,6 +13,9 @@ const ai_waiting_message = [
   '🧠 กำลังคำนวนกฎทางควอนตัมฟิสิกส์เพื่อตอบคุณ..',
   '🧠 ผมขอตอบว่า..'
 ];
+
+// read the ai instruction on provided path
+const ai_instruction = readFileSync('database/ai-instruction.md', 'utf8').trim();
 
 if (!config.external.gemini_api_key) {
   // if Gemini API key is not set, AI features will be disabled
@@ -30,6 +34,9 @@ if (!config.external.gemini_api_key) {
       maxSteps: 5,
       temperature: 0.7,
     }),
+
+    prepareSystemPrompt: async (ctx, message) =>
+      ai_instruction ? `${createSystemPrompt(message)}\n\n${ai_instruction}` : createSystemPrompt(message),
 
     messageFilter: async (commandkit, message) => {
       const is_mentioned = message.mentions.users.has(message.client.user!.id);

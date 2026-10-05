@@ -1,36 +1,42 @@
 import type { EventHandler } from 'commandkit';
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  EmbedBuilder,
-} from 'discord.js';
+import { ChannelType } from 'discord.js';
 import config from '@/config';
 
+// uses REGEX to make room's name templates
+function roomPattern(template: string) {
+  const escaped = template.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${escaped.replaceAll('\\{#\\}', '(\\d+)')}$`);
+}
+
 const handler: EventHandler<'voiceStateUpdate'> = async (oldState, newState) => {
+  // delete a room after the last person leaves
+  const left = oldState.channel;
+  if (
+    left && left.id !== newState.channelId && left.id !== config.channels.auto_voice_channel
+    && left.members.size === 0 && roomPattern(config.settings.auto_vc_name).test(left.name)
+  ) {
+    await left.delete().catch(() => null);
+  }
+
   const member = newState.member ?? oldState.member;
   if (!member || member.user.bot) return;
 
-  const core_channel_ids = config.channels.auto_voice_channel;
+  if (!config.settings.auto_vc_enabled) return;
+
   const voice_channel = newState.channel;
   const guild = newState.guild;
-  const SET_VOICE_CHANNEL_STATUS = 281474976710656n; // discord.js 14 'set voice status'
+  const SET_VOICE_CHANNEL_STATUS = 281474976710656n; // 'set voice status' bit
 
-  if (!voice_channel || !core_channel_ids.includes(voice_channel.id)) return;
+  if (!voice_channel || voice_channel.id !== config.channels.auto_voice_channel) return;
   if (oldState.channelId === voice_channel.id) return;
 
   const parent = voice_channel.parent ?? null;
 
-  const existingRooms = parent
-    ? parent.children.cache.filter((ch) =>
-      ch.name.startsWith('🔊 ห้องเสียงลำดับที่ #'),
-    ).size
-    : guild.channels.cache.filter((ch) =>
-      ch.name.startsWith('🔊 ห้องเสียงลำดับที่ #'),
-    ).size;
-
-  const roomNumber = existingRooms + 1;
+  const template = config.settings.auto_vc_name;
+  const pattern = roomPattern(template);
+  const used = new Set(guild.channels.cache.map((ch) => Number(ch.name.match(pattern)?.[1])));
+  let room_number = 1;
+  while (used.has(room_number)) room_number++;
 
   const permissions_payload = [
     {
@@ -44,60 +50,21 @@ const handler: EventHandler<'voiceStateUpdate'> = async (oldState, newState) => 
     },
     {
       id: guild.roles.everyone,
-      deny: ['Connect', 'ReadMessageHistory'] as const,
+      deny: ['ReadMessageHistory'] as const,
     },
   ];
 
-  const room = await guild.channels.create({
-    name: `🔊 ห้องเสียงลำดับที่ #${roomNumber}`,
-    type: ChannelType.GuildVoice,
-    parent: parent ?? undefined,
-    permissionOverwrites: permissions_payload,
-  });
-
-  await member.voice.setChannel(room).catch(() => null);
-
-  const lockEmbed = new EmbedBuilder()
-    .setDescription('🔒 ห้องกำลังล็อค')
-    .setColor('Yellow');
-
-  const unlockButton = new ButtonBuilder()
-    .setCustomId(`unlock_room:${room.id}:${member.id}`)
-    .setLabel('ปลดล็อคห้อง')
-    .setStyle(ButtonStyle.Success);
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(unlockButton);
-
-  const lockMessage = await room
-    .send({ embeds: [lockEmbed], components: [row] })
+  const room = await guild.channels
+    .create({
+      name: template.replaceAll('{#}', String(room_number)),
+      type: ChannelType.GuildVoice,
+      parent: parent ?? undefined,
+      permissionOverwrites: permissions_payload,
+    })
     .catch(() => null);
+  if (!room) return;
 
-  if (!lockMessage) return;
-
-  const collector = lockMessage.createMessageComponentCollector({
-    time: 10 * 60 * 1000, // 10 min window to unlock, adjust as needed
-  });
-
-  collector.on('collect', async (interaction) => {
-    const [action, roomId, ownerId] = interaction.customId.split(':');
-
-    if (action !== 'unlock_room' || roomId !== room.id) return;
-
-    if (interaction.user.id !== ownerId) {
-      await interaction
-        .reply({ content: 'เฉพาะเจ้าของห้องเท่านั้น', ephemeral: true })
-        .catch(() => null);
-      return;
-    }
-
-    await room.permissionOverwrites
-      .edit(guild.roles.everyone, { Connect: true })
-      .catch(() => null);
-
-    await interaction.deferUpdate().catch(() => null);
-    await lockMessage.delete().catch(() => null);
-    collector.stop();
-  });
+  await member.voice.setChannel(room).catch(() => room.delete().catch(() => null));
 };
 
 export default handler;

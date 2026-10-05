@@ -6,13 +6,15 @@ const handler: EventHandler<'messageCreate'> = async (message) => {
   if (!config.settings.honeypot_enabled) return;
   if (!message.inGuild() || message.channelId !== config.channels.honeypot_channel) return;
   if (message.author.bot || !message.member) return;
-  if (message.author.id === message.guild.ownerId) return;
-  if (!config.settings.admin_ban_honeypot && message.member.permissions.has('Administrator')) return;
 
   await message.delete().catch(() => null);
 
-  const banned = await message.member
-    .ban({ reason: 'honeypot', deleteMessageSeconds: 60 * 60 })
+  // owner (and admins when admin_ban_honeypot is off) get the normal flow, minus the actual ban
+  const isOwner = message.author.id === message.guild.ownerId;
+  const skipBan = isOwner || (!config.settings.admin_ban_honeypot && message.member.permissions.has('Administrator'));
+
+  const banned = skipBan || await message.member
+    .ban({ reason: 'honeypot detected', deleteMessageSeconds: 60 * 60 })
     .then(() => true)
     .catch(() => false);
 
@@ -36,7 +38,7 @@ async function sendLog(message: Message<true>, banned: boolean) {
   await channel
     .send({
       embeds: [{
-        title: banned ? '🍯 แบนจากห้องดักบอท' : '⚠️ แบนจากห้องดักบอทไม่สำเร็จ',
+        title: banned ? '🍯 แบนจากการสแปม' : '⚠️ แบนจากการสแปมไม่สำเร็จ',
         description: banned ? undefined : 'บอทอาจมียศต่ำกว่าผู้ใช้ หรือไม่มีสิทธิ์ Ban Members',
         color: banned ? 0xed4245 : 0xfee75c,
         thumbnail: { url: message.author.displayAvatarURL() },

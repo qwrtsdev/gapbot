@@ -34,6 +34,9 @@ export const metadata: CommandMetadata = {
 };
 
 const handleSubmit = (style: string): OnModalKitSubmit => async (interaction, ctx) => {
+  ctx.dispose();
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
   const input_channel_id: string | null = interaction.fields.getTextInputValue('channelId').trim() || null;
   const input_reply_id: string | null = interaction.fields.getTextInputValue('replyId').trim() || null;
   const input_message: string = interaction.fields.getTextInputValue('message');
@@ -43,12 +46,7 @@ const handleSubmit = (style: string): OnModalKitSubmit => async (interaction, ct
     : interaction.channel;
 
   if (!channel?.isTextBased() || !('send' in channel)) {
-    await interaction.reply({
-      content: '❌ ห้องที่ระบุไม่ใช่ห้องข้อความ',
-      flags: MessageFlags.Ephemeral,
-    });
-
-    ctx.dispose();
+    await interaction.editReply('❌ ห้องที่ระบุไม่ใช่ห้องข้อความ');
     return;
   }
 
@@ -68,29 +66,19 @@ const handleSubmit = (style: string): OnModalKitSubmit => async (interaction, ct
 
   try {
     await channel.send(message_payload);
-  } catch (err) {
-    await interaction.reply({
-      content: '❌ ส่งข้อความไม่สำเร็จ',
-      flags: MessageFlags.Ephemeral,
-    });
-
-    ctx.dispose();
+  } catch {
+    await interaction.editReply('❌ ส่งข้อความไม่สำเร็จ');
     return;
   }
 
-  await interaction.reply({
-    content: '✅ ส่งข้อความเรียบร้อยแล้ว',
-    flags: MessageFlags.Ephemeral,
-  });
-
-  ctx.dispose();
+  await interaction.editReply('✅ ส่งข้อความเรียบร้อยแล้ว');
 };
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
   const style = interaction.options.getString('style', true);
 
   const modal = (
-    <Modal title="ประกาศข้อความ" onSubmit={handleSubmit(style)}>
+    <Modal title="ประกาศข้อความ" onSubmit={handleSubmit(style)} options={{ autoReset: false }}>
       <Label label="ไอดีห้อง (ถ้ามี)">
         <ShortInput
           customId="channelId"

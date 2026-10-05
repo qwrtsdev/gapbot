@@ -19,7 +19,7 @@ export default async function ticketSettings(interaction: StringSelectMenuIntera
     </Container>
   );
 
-  await interaction.reply({
+  await interaction.followUp({
     components: [menu],
     flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2,
   });

@@ -1,7 +1,25 @@
 import * as dotenv from 'dotenv';
-import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 dotenv.config();
+
+// editable from the mod menu, stored only in database/settings.json
+interface Settings {
+  settings: {
+    honeypot_enabled: boolean;
+    auto_vc_enabled: boolean;
+    auto_vc_name: string; // {#} = room number
+    admin_ban_honeypot: boolean;
+    routine_enabled: boolean;
+    routine_cron: string; // Asia/Bangkok
+  };
+  channels: {
+    honeypot_channel: string;
+    honeypot_log_channel: string; // '' = no log
+    auto_voice_channel: string;
+    routine_channels: string[];
+  };
+}
 
 interface Config {
   discord_token: string | null;
@@ -11,17 +29,11 @@ interface Config {
     ticket_category: string;
   };
 
-  channels: {
+  channels: Settings['channels'] & {
     log_channel: string;
-    honeypot_channel: string;
-    auto_voice_channel: string;
   };
 
-  settings: {
-    honeypot_enabled: boolean;
-    auto_vc_enabled: boolean;
-    admin_ban_honeypot: boolean;
-  };
+  settings: Settings['settings'];
 
   maintenance_mode: {
     is_enabled: boolean;
@@ -34,6 +46,11 @@ interface Config {
   };
 }
 
+// runtime-editable values live outside src/, otherwise `commandkit dev` sees the write,
+// restarts the bot and every pending button/modal handler is lost
+const SETTINGS_PATH = 'database/settings.json';
+const saved: Settings = JSON.parse(readFileSync(SETTINGS_PATH, 'utf8'));
+
 const config: Config = {
   discord_token: process.env.DISCORD_TOKEN || null,
   guild_id: '1459282920538771518',
@@ -44,15 +61,10 @@ const config: Config = {
 
   channels: {
     log_channel: '1532079508986003486',
-    honeypot_channel: '1529376207311863898',
-    auto_voice_channel: '1532027977007628459',
+    ...saved.channels,
   },
 
-  settings: {
-    honeypot_enabled: true,
-    auto_vc_enabled: true,
-    admin_ban_honeypot: false,
-  },
+  settings: saved.settings,
 
   maintenance_mode: {
     is_enabled: true,
@@ -66,19 +78,12 @@ const config: Config = {
 }
 
 export async function saveConfig() {
-  const values: Record<string, string | boolean> = {
-    honeypot_enabled: config.settings.honeypot_enabled,
-    honeypot_channel: config.channels.honeypot_channel,
-    auto_vc_enabled: config.settings.auto_vc_enabled,
-    auto_voice_channel: config.channels.auto_voice_channel,
+  const { honeypot_channel, honeypot_log_channel, auto_voice_channel, routine_channels } = config.channels;
+  const data: Settings = {
+    settings: config.settings,
+    channels: { honeypot_channel, honeypot_log_channel, auto_voice_channel, routine_channels },
   };
-
-  const path = join(process.cwd(), 'src/config.ts');
-  let source = await readFile(path, 'utf8');
-  for (const [key, value] of Object.entries(values)) {
-    source = source.replace(new RegExp(`\\b${key}: [^,\\n]+,`), `${key}: ${typeof value === 'string' ? `'${value}'` : value},`);
-  }
-  await writeFile(path, source);
+  await writeFile(SETTINGS_PATH, JSON.stringify(data, null, 2) + '\n');
 }
 
 export default config;

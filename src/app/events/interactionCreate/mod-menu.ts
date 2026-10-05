@@ -15,6 +15,9 @@ const handler: EventHandler<'interactionCreate'> = async (interaction) => {
   if (!interaction.isStringSelectMenu() || interaction.customId !== 'mod-menu-options') return;
 
   const value = interaction.values[0] as keyof typeof options;
+
+  // re-render the menu
+  await interaction.update({ components: interaction.message.components });
   await options[value]?.(interaction);
 };
 

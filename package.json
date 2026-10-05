@@ -18,6 +18,7 @@
     "@ai-sdk/google": "^3.0.30",
     "@commandkit/ai": "^1.2.2",
     "commandkit": "^1.2.2",
+    "croner": "^10.0.1",
     "discord.js": "^14.27.0",
     "dotenv": "^17.4.2"
   },

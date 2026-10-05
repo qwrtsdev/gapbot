@@ -37,3 +37,6 @@ lerna-debug.log*
 
 # for personal
 docs
+
+# runtime settings
+database/settings.json

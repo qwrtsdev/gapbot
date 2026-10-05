@@ -1,37 +1,54 @@
-import { Collection, type EventHandler } from 'commandkit';
+import type { EventHandler } from 'commandkit';
+import type { Message } from 'discord.js';
 import config from '@/config';
 
 const handler: EventHandler<'messageCreate'> = async (message) => {
-  if (message.channelId !== config.channels.honeypot_channel) return;
-  if (message.author.bot) return;
+  if (!config.settings.honeypot_enabled) return;
+  if (!message.inGuild() || message.channelId !== config.channels.honeypot_channel) return;
+  if (message.author.bot || !message.member) return;
+  if (message.author.id === message.guild.ownerId) return;
+  if (!config.settings.admin_ban_honeypot && message.member.permissions.has('Administrator')) return;
 
-  const target = message.member;
-  if (config.settings.admin_ban_honeypot === false) { if (target?.permissions.has('Administrator')) return; }
+  await message.delete().catch(() => null);
 
-  message.deletable && await message.delete();
-  await target
-    ?.ban({ reason: 'honeypot' })
+  const banned = await message.member
+    .ban({ reason: 'honeypot', deleteMessageSeconds: 60 * 60 })
+    .then(() => true)
+    .catch(() => false);
+
+  await sendLog(message, banned);
+  if (!banned) return;
+
+  const log_message = await message.channel
+    .send({ content: `🍯 **${message.author.tag}** สแปมเยอะเกิน ถูกแบนเลยง่ะ` })
     .catch(() => null);
 
-  const honeypot_channel = message.guild?.channels.cache.get(config.channels.honeypot_channel);
-  const log_message = honeypot_channel?.isTextBased()
-    ? await honeypot_channel.send({ content: `🍯 **${target?.user.tag}** สแปมเยอะเกิน ถูกแบนเลยง่ะ` })
-    : null;
-
   setTimeout(() => { log_message?.delete().catch(() => null); }, 1000 * 60 * 3);
-
-  const other_channels = message.guild?.channels.cache.filter((c) =>
-    c.isTextBased() && c.id !== message.channelId && c.permissionsFor(message.guild!.members.me!)?.has(['ViewChannel', 'ReadMessageHistory', 'ManageMessages']),
-  ) ?? new Collection();
-
-  await Promise.allSettled(
-    other_channels.map(async (channel) => {
-      if (!channel.isTextBased()) return;
-      const recent = await channel.messages.fetch({ limit: 5 }).catch(() => null);
-      const latest = recent?.find((m) => m.author.id === target?.id);
-      latest?.deletable && await latest.delete().catch(() => null);
-    }),
-  );
 };
+
+async function sendLog(message: Message<true>, banned: boolean) {
+  if (!config.channels.honeypot_log_channel) return;
+  const channel = await message.client.channels.fetch(config.channels.honeypot_log_channel).catch(() => null);
+  if (!channel?.isSendable()) return;
+
+  const content = message.content || (message.attachments.size ? `(ไฟล์แนบ ${message.attachments.size} ไฟล์)` : '(ไม่มีข้อความ)');
+
+  await channel
+    .send({
+      embeds: [{
+        title: banned ? '🍯 แบนจากห้องดักบอท' : '⚠️ แบนจากห้องดักบอทไม่สำเร็จ',
+        description: banned ? undefined : 'บอทอาจมียศต่ำกว่าผู้ใช้ หรือไม่มีสิทธิ์ Ban Members',
+        color: banned ? 0xed4245 : 0xfee75c,
+        thumbnail: { url: message.author.displayAvatarURL() },
+        fields: [
+          { name: 'ผู้ใช้', value: `${message.author} \`${message.author.tag}\`\n-# ${message.author.id}` },
+          { name: 'ห้อง', value: `${message.channel}`, inline: true },
+          { name: 'ข้อความ', value: content.slice(0, 1024) },
+        ],
+        timestamp: new Date().toISOString(),
+      }],
+    })
+    .catch(() => null);
+}
 
 export default handler;
